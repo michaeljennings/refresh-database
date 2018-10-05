@@ -1,0 +1,25 @@
+{
+  "name": "michaeljennings/refresh-database",
+  "description": "A package to speed up your laravel database tests by only running the migrations once",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Michael Jennings",
+      "email": "michael.jennings91@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.0",
+    "orchestra/testbench": "^3.0",
+    "symfony/yaml": "^3.3|^4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "MichaelJennings\\RefreshDatabase\\": "src/"
+    },
+    "files": [
+      "src/helpers.php"
+    ]
+  }
+}
