@@ -1,7 +1,7 @@
 <?php
 
 // Find the config file and the base directory.
-$path = isset($path) ? $path : __DIR__ . '/../tests.yml';
+$path = isset($path) ? $path : __DIR__ . '/../../../../.refresh-database.yml';
 $baseDir = isset($baseDir) ? $baseDir : realpath(dirname($path));
 
 // Load the composer autoload.
@@ -12,5 +12,5 @@ if (should_dump_database()) {
     $values = Symfony\Component\Yaml\Yaml::parse(file_get_contents($path));
 
     // Run the migrations.
-    app(KestrelSAAS\Core\Tests\DatabaseMigrator::class)->migrate($values, $baseDir);
+    app(MichaelJennings\RefreshDatabase\DatabaseMigrator::class)->migrate($values, $baseDir);
 }
