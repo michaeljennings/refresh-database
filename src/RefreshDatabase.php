@@ -1,6 +1,6 @@
 <?php
 
-namespace KestrelSAAS\Core\Tests;
+namespace MichaelJennings\RefreshDatabase;
 
 use Illuminate\Foundation\Testing\RefreshDatabase as IlluminateRefreshDatabase;
 

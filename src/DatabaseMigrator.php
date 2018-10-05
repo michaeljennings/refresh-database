@@ -26,7 +26,7 @@ class DatabaseMigrator
     {
         $migrations = ! empty($config['migrations']) ? $config['migrations'] : [];
         $databaseName = ! empty($config['database_name']) ? $config['database_name'] : 'testing.sqlite';
-        $output = $this->getOutputDirectory($config);
+        $output = $this->getOutputDirectory($config, $baseDir);
 
         define('REFRESH_DATABASE_DIRECTORY', $output);
 
