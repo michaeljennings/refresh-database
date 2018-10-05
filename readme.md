@@ -72,7 +72,7 @@ use MichaelJennings\RefreshDatabase\RefreshDatabase;
 
 class TestCase extends BaseTestCase
 {
-    use RefreshDatabase
+    use RefreshDatabase;
 }
 ```
 
