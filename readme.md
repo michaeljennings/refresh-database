@@ -66,6 +66,16 @@ When you run your tests we will create a `.database` directory in the output dir
 
 Once you have your config setup you then just need to use the `MichaelJennings\RefreshDatabase\RefreshDatabase` trait in your test or test case.
 
+```php
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use MichaelJennings\RefreshDatabase\RefreshDatabase;
+
+class TestCase extends BaseTestCase
+{
+    use RefreshDatabase
+}
+```
+
 ## Environments
 
 Occasionally you might find you to want to disable the database dump in certain environments.
