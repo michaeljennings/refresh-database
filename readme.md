@@ -94,3 +94,20 @@ To disable the database dump you can set a `DUMP_DATABASE` environment variable 
   </php>
 </phpunit>
 ```
+
+## Cache Migrations
+
+By default this package will cache the contents of your migrations so that it only rebuilds the database if it needs to.
+
+If you want to rebuild the database each time you run your tests you set the `cache_migrations` property to false in your .refresh-database.yml file.
+
+```yml
+migrations:
+  - database/migrations
+  - vendor/other/package/database/migrations
+
+output: tests
+cache_migrations: false
+```
+
+If you find the package is not rebuilding the database when you think it should be delete the .database directory from your output directory.

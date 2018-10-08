@@ -25,8 +25,9 @@ class DatabaseMigrator
      */
     public function migrate(array $config, string $baseDir)
     {
-        $migrations = ! empty($config['migrations']) ? $config['migrations'] : [];
-        $databaseName = ! empty($config['database_name']) ? $config['database_name'] : 'testing.sqlite';
+        $migrations = array_key_exists('migrations', $config) ? $config['migrations'] : [];
+        $databaseName = array_key_exists('database_name', $config) ? $config['database_name'] : 'testing.sqlite';
+        $cacheMigrations = array_key_exists('cache_migrations', $config) ? $config['cache_migrations'] : true;
         $output = $this->getOutputDirectory($config, $baseDir);
 
         define('REFRESH_DATABASE_DIRECTORY', $output);
@@ -35,7 +36,7 @@ class DatabaseMigrator
             mkdir($output);
         }
 
-        $this->runMigrations($migrations, $baseDir, $output, $databaseName);
+        $this->runMigrations($migrations, $baseDir, $output, $databaseName, $cacheMigrations);
         $this->dumpDatabase($output);
     }
 
@@ -46,8 +47,9 @@ class DatabaseMigrator
      * @param string $baseDir
      * @param string $output
      * @param string $databaseName
+     * @param bool   $cacheMigrations
      */
-    protected function runMigrations(array $paths, string $baseDir, string $output, string $databaseName)
+    protected function runMigrations(array $paths, string $baseDir, string $output, string $databaseName, bool $cacheMigrations)
     {
         $this->databasePath = $this->join($output, $databaseName);
 
@@ -56,7 +58,7 @@ class DatabaseMigrator
         if (! file_exists($this->databasePath)) {
             $this->refreshDatabase($this->databasePath);
         } else {
-            if (! $this->shouldRunMigrations($app, $paths)) {
+            if ($cacheMigrations && ! $this->shouldRunMigrations($app, $paths)) {
                 return;
             }
 
