@@ -3,6 +3,7 @@
 namespace MichaelJennings\RefreshDatabase;
 
 use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Contracts\Foundation\Application;
 use Orchestra\Testbench\Concerns\CreatesApplication;
 
 class DatabaseMigrator
@@ -34,29 +35,88 @@ class DatabaseMigrator
             mkdir($output);
         }
 
-        $this->databasePath = $this->refreshDatabase($output, $databaseName);
-
-        $this->runMigrations($migrations, $baseDir);
+        $this->runMigrations($migrations, $baseDir, $output, $databaseName);
         $this->dumpDatabase($output);
     }
 
     /**
      * Run the migrations into the sqlite file.
      *
-     * @param array  $migrations
+     * @param array  $paths
      * @param string $baseDir
+     * @param string $output
+     * @param string $databaseName
      */
-    protected function runMigrations(array $migrations, string $baseDir)
+    protected function runMigrations(array $paths, string $baseDir, string $output, string $databaseName)
     {
+        $this->databasePath = $this->join($output, $databaseName);
+
         $app = $this->createApplication();
 
-        foreach ($migrations as $migration) {
+        if (! file_exists($this->databasePath)) {
+            $this->refreshDatabase($this->databasePath);
+        } else {
+            if (! $this->shouldRunMigrations($app, $paths)) {
+                return;
+            }
+
+            $this->refreshDatabase($this->databasePath);
+        }
+
+        foreach ($paths as $path) {
             $app[Kernel::class]->call('migrate', [
                 '--database' => 'sqlite',
-                '--path' => $this->join($baseDir, $migration),
+                '--path' => $this->join($baseDir, $path),
                 '--realpath' => true,
             ]);
         }
+    }
+
+    /**
+     * Check if the migrations have changed.
+     *
+     * @param Application $app
+     * @param array       $paths
+     * @return bool
+     */
+    protected function shouldRunMigrations(Application $app, array $paths)
+    {
+        $migrations = $this->migrationContents($app->make('migrator')->getMigrationFiles($paths));
+        $cachePath = $this->join(REFRESH_DATABASE_DIRECTORY, 'migrations');
+
+        if (file_exists($cachePath)) {
+            $previousMigrations = file_get_contents($cachePath);
+
+            if ($migrations == $previousMigrations) {
+                return false;
+            }
+
+            unlink($cachePath);
+        }
+
+        $handle = fopen($cachePath, 'w');
+
+        fwrite($handle, $migrations);
+        fclose($handle);
+
+        return true;
+    }
+
+    /**
+     * Get the contents of the file at each path.
+     *
+     * @param array $paths
+     * @return string
+     */
+    protected function migrationContents(array $paths)
+    {
+        $contents = '';
+
+        foreach ($paths as $path) {
+            $contents .= file_get_contents($path);
+        }
+
+        return $contents;
     }
 
     /**
@@ -74,19 +134,18 @@ class DatabaseMigrator
     /**
      * Refresh the sqlite database.
      *
-     * @param string $output
-     * @param string $databaseName
+     * @param string $filename
      * @return string
      */
-    protected function refreshDatabase(string $output, string $databaseName): string
+    protected function refreshDatabase(string $filename): string
     {
-        $filename = $this->join($output, $databaseName);
-
         if (file_exists($filename)) {
             unlink($filename);
         }
 
-        fopen($filename, 'w');
+        $handle = fopen($filename, 'w');
+
+        fclose($handle);
 
         return $filename;
     }
