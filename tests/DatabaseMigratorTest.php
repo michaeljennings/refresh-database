@@ -5,9 +5,12 @@ namespace MichaelJennings\RefreshDatabase\Tests;
 use MichaelJennings\RefreshDatabase\Config;
 use MichaelJennings\RefreshDatabase\DatabaseMigrator;
 use MichaelJennings\RefreshDatabase\Repositories\Yaml;
+use MichaelJennings\RefreshDatabase\Tests\Concerns\CleanUpDatabase;
 
 class DatabaseMigratorTest extends TestCase
 {
+    use CleanUpDatabase;
+
     /**
      * @test
      */
@@ -53,32 +56,5 @@ class DatabaseMigratorTest extends TestCase
         $this->assertTrue(file_exists(__DIR__ . '/.database/testing.sqlite'));
         $this->assertFalse(file_exists(__DIR__ . '/.database/migrations'));
         $this->assertTrue(file_exists(__DIR__ . '/.database/export.sql'));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function tearDown()
-    {
-        parent::tearDown();
-
-        if (file_exists(__DIR__ . '/.database')) {
-            $this->removeFile(__DIR__ . '/.database/testing.sqlite');
-            $this->removeFile(__DIR__ . '/.database/migrations');
-            $this->removeFile(__DIR__ . '/.database/export.sql');
-            rmdir(__DIR__ . '/.database');
-        }
-    }
-
-    /**
-     * If the file exists delete it.
-     *
-     * @param $file
-     */
-    protected function removeFile($file)
-    {
-        if (file_exists($file)) {
-            unlink($file);
-        }
     }
 }
