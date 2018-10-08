@@ -16,6 +16,11 @@ class Yaml
      */
     protected $values;
 
+    /**
+     * The base directory for the yml file.
+     *
+     * @var string|null
+     */
     protected $baseDirectory;
 
     public function __construct(array $values = [], $baseDirectory = null)
@@ -41,6 +46,10 @@ class Yaml
      */
     public function getPath()
     {
+        if ($location = env('REFRESH_DATABASE_LOCATION')) {
+            return starts_with($location, '/') ? $location : __DIR__ . DIRECTORY_SEPARATOR . trim($location, '/');
+        }
+
         $root = null;
         $currentDirectory = __DIR__;
 

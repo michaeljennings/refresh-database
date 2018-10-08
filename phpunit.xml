@@ -23,7 +23,7 @@
         <env name="QUEUE_DRIVER" value="sync"/>
         <env name="DB_CONNECTION" value="sqlite"></env>
         <env name="DB_DATABASE" value=":memory:"></env>
-        <env name="REFRESH_DATABASE_LOCATION" value="src"></env>
+        <env name="REFRESH_DATABASE_LOCATION" value="../../tests/.refresh-database.yml"></env>
     </php>
 
     <filter>
