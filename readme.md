@@ -6,6 +6,11 @@ This package speeds up your tests by running the migrations once into an sqlite 
 
 At the minute this package only works with phpunit and sqlite.
 
+- [Installation](#installation)
+- [Usage](#usage)
+- [Environments](#environments)
+- [Migration Cache](#migration-cache)
+
 ## Installation
 
 To install the package run:
@@ -95,7 +100,7 @@ To disable the database dump you can set a `DUMP_DATABASE` environment variable 
 </phpunit>
 ```
 
-## Cache Migrations
+## Migration Cache
 
 By default this package will cache the contents of your migrations so that it only rebuilds the database if it needs to.
 
