@@ -1,4 +1,4 @@
-# Refresh Database
+# Refresh Database [![Latest Stable Version](https://poser.pugx.org/michaeljennings/refresh-database/v/stable)](https://packagist.org/packages/michaeljennings/refresh-database)
 
 When running database tests in laravel one of the biggest overheads is running all of your migrations, the bigger your application gets the longer it takes.
 
