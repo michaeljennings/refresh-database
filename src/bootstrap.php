@@ -1,16 +1,23 @@
 <?php
 
-// Find the config file and the base directory.
-$path = isset($path) ? $path : __DIR__ . '/../../../../.refresh-database.yml';
-$baseDir = isset($baseDir) ? $baseDir : realpath(dirname($path));
+$root = null;
+$currentDirectory = __DIR__;
 
-// Load the composer autoload.
-require_once $baseDir . DIRECTORY_SEPARATOR. 'vendor/autoload.php';
+// Find the vendor directory.
+do {
+    $currentDirectory = dirname($currentDirectory);
+    $vendor = $currentDirectory . '/vendor';
+
+    if (file_exists($vendor)) {
+        $root = $currentDirectory;
+    }
+} while (is_null($root) && $currentDirectory != '/');
+
+// Require the composer autoload
+require_once $vendor . DIRECTORY_SEPARATOR. 'autoload.php';
 
 // Check if we should dump the database to a file.
-if (should_dump_database()) {
-    $values = Symfony\Component\Yaml\Yaml::parse(file_get_contents($path));
-
+if (\MichaelJennings\RefreshDatabase\Config::shouldDumpDatabase()) {
     // Run the migrations.
-    app(MichaelJennings\RefreshDatabase\DatabaseMigrator::class)->migrate($values, $baseDir);
+    app(MichaelJennings\RefreshDatabase\DatabaseMigrator::class)->migrate();
 }

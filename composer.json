@@ -17,9 +17,11 @@
   "autoload": {
     "psr-4": {
       "MichaelJennings\\RefreshDatabase\\": "src/"
-    },
-    "files": [
-      "src/helpers.php"
-    ]
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "MichaelJennings\\RefreshDatabase\\Tests\\": "tests/"
+    }
   }
 }

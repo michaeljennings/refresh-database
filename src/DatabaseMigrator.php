@@ -8,7 +8,14 @@ use Orchestra\Testbench\Concerns\CreatesApplication;
 
 class DatabaseMigrator
 {
-    use CreatesApplication;
+    use CreatesApplication, JoinDirectories;
+
+    /**
+     * The config service.
+     *
+     * @var Config
+     */
+    protected $config;
 
     /**
      * The path to the sqlite database file.
@@ -17,22 +24,25 @@ class DatabaseMigrator
      */
     protected $databasePath;
 
+    public function __construct(Config $config)
+    {
+        $this->config = $config;
+    }
+
     /**
      * Run all of the migrations to the sqlite file.
-     *
-     * @param array  $config
-     * @param string $baseDir
      */
-    public function migrate(array $config, string $baseDir)
+    public function migrate()
     {
+        $config = $this->config->values();
+        $baseDir = $this->config->getBaseDirectory();
+
         $migrations = array_key_exists('migrations', $config) ? $config['migrations'] : [];
         $databaseName = array_key_exists('database_name', $config) ? $config['database_name'] : 'testing.sqlite';
         $cacheMigrations = array_key_exists('cache_migrations', $config) ? $config['cache_migrations'] : true;
-        $output = $this->getOutputDirectory($config, $baseDir);
+        $output = $this->config->getOutputDirectory();
 
-        define('REFRESH_DATABASE_DIRECTORY', $output);
-
-        if (! file_exists($output)) {
+        if ( ! file_exists($output)) {
             mkdir($output);
         }
 
@@ -49,14 +59,25 @@ class DatabaseMigrator
      * @param string $databaseName
      * @param bool   $cacheMigrations
      */
-    protected function runMigrations(array $paths, string $baseDir, string $output, string $databaseName, bool $cacheMigrations)
-    {
+    protected function runMigrations(
+        array $paths,
+        string $baseDir,
+        string $output,
+        string $databaseName,
+        bool $cacheMigrations
+    ) {
         $this->databasePath = $this->join($output, $databaseName);
 
         $app = $this->createApplication();
 
-        if (! file_exists($this->databasePath)) {
+        if ( ! file_exists($this->databasePath)) {
             $this->refreshDatabase($this->databasePath);
+
+            if ($cacheMigrations) {
+                $migrations = $this->migrationContents($app, $paths);
+
+                $this->cacheMigrations($migrations);
+            }
         } else {
             if ($cacheMigrations && ! $this->shouldRunMigrations($app, $paths)) {
                 return;
@@ -83,8 +104,8 @@ class DatabaseMigrator
      */
     protected function shouldRunMigrations(Application $app, array $paths)
     {
-        $migrations = $this->migrationContents($app->make('migrator')->getMigrationFiles($paths));
-        $cachePath = $this->join(REFRESH_DATABASE_DIRECTORY, 'migrations');
+        $cachePath = $this->getCachePath();
+        $migrations = $this->migrationContents($app, $paths);
 
         if (file_exists($cachePath)) {
             $previousMigrations = file_get_contents($cachePath);
@@ -96,29 +117,44 @@ class DatabaseMigrator
             unlink($cachePath);
         }
 
-        $handle = fopen($cachePath, 'w');
-
-        fwrite($handle, $migrations);
-        fclose($handle);
+        $this->cacheMigrations($migrations);
 
         return true;
     }
 
     /**
+     * Cache the migrations to a file.
+     *
+     * @param string $migrations
+     */
+    protected function cacheMigrations(string $migrations)
+    {
+        $cachePath = $this->getCachePath();
+
+        $handle = fopen($cachePath, 'w');
+
+        fwrite($handle, $migrations);
+        fclose($handle);
+    }
+
+    /**
      * Get the contents of the file at each path.
      *
-     * @param array $paths
+     * @param Application $app
+     * @param array       $paths
      * @return string
      */
-    protected function migrationContents(array $paths)
+    protected function migrationContents(Application $app, array $paths)
     {
-        $contents = '';
+        $migrations = $app->make('migrator')->getMigrationFiles($paths);
 
-        foreach ($paths as $path) {
-            $contents .= file_get_contents($path);
+        $content = '';
+
+        foreach ($migrations as $migration) {
+            $content .= file_get_contents($migration);
         }
 
-        return $contents;
+        return $content;
     }
 
     /**
@@ -139,7 +175,7 @@ class DatabaseMigrator
      * @param string $filename
      * @return string
      */
-    protected function refreshDatabase(string $filename): string
+    protected function refreshDatabase(string $filename)
     {
         if (file_exists($filename)) {
             unlink($filename);
@@ -153,34 +189,13 @@ class DatabaseMigrator
     }
 
     /**
-     * Get the output directory to store the database dump in.
+     * Get the path to cache the migrations in.
      *
-     * @param array  $config
-     * @param string $baseDir
      * @return string
      */
-    protected function getOutputDirectory(array $config, string $baseDir)
+    protected function getCachePath()
     {
-        if (isset($config['output'])) {
-            $containsBaseDir = starts_with($baseDir, $config['output']);
-            $output = $containsBaseDir ? $config['output'] : $this->join($baseDir, $config['output']);
-        } else {
-            $output = $baseDir;
-        }
-
-        return $this->join($output, '.database');
-    }
-
-    /**
-     * Join the filename and directory.
-     *
-     * @param string $directory
-     * @param string $filename
-     * @return string
-     */
-    protected function join(string $directory, string $filename): string
-    {
-        return $directory . DIRECTORY_SEPARATOR . $filename;
+        return $this->join($this->config->getOutputDirectory(), 'migrations');
     }
 
     /**
@@ -193,9 +208,9 @@ class DatabaseMigrator
     {
         $app['config']->set('database.default', 'sqlite');
         $app['config']->set('database.connections.sqlite', [
-            'driver'   => 'sqlite',
+            'driver' => 'sqlite',
             'database' => $this->databasePath,
-            'prefix'   => '',
+            'prefix' => '',
         ]);
     }
 }

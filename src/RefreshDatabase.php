@@ -17,9 +17,9 @@ trait RefreshDatabase
      */
     public function refreshDatabase()
     {
-        if (should_dump_database()) {
+        if (Config::shouldDumpDatabase()) {
             $this->app->make('db')->unprepared(
-                file_get_contents(REFRESH_DATABASE_DIRECTORY . DIRECTORY_SEPARATOR . 'export.sql')
+                file_get_contents(Config::getOutputDirectory() . DIRECTORY_SEPARATOR . 'export.sql')
             );
         } else {
             $this->parentRefreshDatabase();
