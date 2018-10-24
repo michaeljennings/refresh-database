@@ -160,7 +160,7 @@ output: tests
 cache_migrations: false
 ```
 
-If you have setup multiple database connections you only specif
+If you have setup multiple database connections you only need to specify the `cache_migrations` property once.
 
 ```yml
 connections:
