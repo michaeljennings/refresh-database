@@ -8,6 +8,7 @@ At the minute this package only works with phpunit and sqlite.
 
 - [Installation](#installation)
 - [Usage](#usage)
+    - [Multiple Connections](#multiple-connections)
 - [Environments](#environments)
 - [Migration Cache](#migration-cache)
 
@@ -81,6 +82,50 @@ class TestCase extends BaseTestCase
 }
 ```
 
+### Multiple Connections
+
+Some systems require you to run migrations into multiple databases, e.g. a multi-tenanted system.
+
+To migrate to multiple database connections you can set the connections property in your `.refresh-database.yml` file.
+
+Below is a config file with two database connections; shared, and tenant.
+
+```yml
+connections:
+  shared:
+    migrations:
+      - database/migrations
+      - vendor/other/package/database/migrations
+  tenant:
+    migrations:
+      - database/migrations/tenant
+
+output: tests
+```
+
+The connection key must be the name of a database connection in your laravel app.
+
+For the config file above you would have to set two database connections; one called shared, and another called tenant.
+
+```php
+return [
+  ...
+  'connections' => [
+    'shared' => [
+      'driver' => 'sqlite',
+        'database' => ':memory:',
+        'prefix' => '',
+      ],
+      'tenant' => [
+        'driver' => 'sqlite',
+        'database' => ':memory:',
+        'prefix' => '',
+      ],
+  ]
+  ...
+]
+```
+
 ## Environments
 
 Occasionally you might find you to want to disable the database dump in certain environments.
@@ -110,6 +155,22 @@ If you want to rebuild the database each time you run your tests you set the `ca
 migrations:
   - database/migrations
   - vendor/other/package/database/migrations
+
+output: tests
+cache_migrations: false
+```
+
+If you have setup multiple database connections you only specif
+
+```yml
+connections:
+  shared:
+    migrations:
+      - database/migrations
+      - vendor/other/package/database/migrations
+  tenant:
+    migrations:
+      - database/migrations/tenant
 
 output: tests
 cache_migrations: false
