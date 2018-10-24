@@ -2,10 +2,11 @@
 
 namespace MichaelJennings\RefreshDatabase\Repositories;
 
+use MichaelJennings\RefreshDatabase\Contracts\Config;
 use MichaelJennings\RefreshDatabase\JoinDirectories;
 use Symfony\Component\Yaml\Yaml as SymfonyYaml;
 
-class Yaml
+class Yaml implements Config
 {
     use JoinDirectories;
 
