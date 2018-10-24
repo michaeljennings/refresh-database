@@ -51,6 +51,15 @@ class YamlRepositoryTest extends TestCase
     /**
      * @test
      */
+    public function it_sets_a_config_value()
+    {
+        $this->assertInstanceOf(Yaml::class, $this->repository->set('foo', 'bar'));
+        $this->assertEquals('bar', $this->repository->get('foo'));
+    }
+
+    /**
+     * @test
+     */
     public function it_gets_the_config_values()
     {
         $values = $this->repository->values();
@@ -82,6 +91,16 @@ class YamlRepositoryTest extends TestCase
     public function it_gets_the_output_directory()
     {
         $this->assertEquals(realpath(__DIR__ . '/../../tests/.database'), $this->repository->getOutputDirectory());
+    }
+
+    /**
+     * @test
+     */
+    public function it_gets_the_base_directory_if_an_output_directory_is_not_set()
+    {
+        $this->repository->set('output', null);
+
+        $this->assertEquals(realpath(__DIR__ . '/../..') . '/.database', $this->repository->getOutputDirectory());
     }
 
     /**

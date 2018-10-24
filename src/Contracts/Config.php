@@ -22,6 +22,15 @@ interface Config
     public function get(string $key, $default = null);
 
     /**
+     * Set a config value.
+     *
+     * @param string $key
+     * @param mixed  $value
+     * @return $this
+     */
+    public function set(string $key, $value): Config;
+
+    /**
      * Get the config values.
      *
      * @return array

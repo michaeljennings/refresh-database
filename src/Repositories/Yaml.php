@@ -54,6 +54,20 @@ class Yaml implements Config
     }
 
     /**
+     * Set a config value.
+     *
+     * @param string $key
+     * @param mixed  $value
+     * @return $this
+     */
+    public function set(string $key, $value): Config
+    {
+        $this->values[$key] = $value;
+
+        return $this;
+    }
+
+    /**
      * Get the config values.
      *
      * @return array
@@ -113,9 +127,9 @@ class Yaml implements Config
 
         $baseDirectory = $this->getBaseDirectory();
 
-        if (isset($this->values['output'])) {
-            $containsBaseDir = starts_with($baseDirectory, $this->values['output']);
-            $output = $containsBaseDir ? $this->values['output'] : $this->join($baseDirectory, $this->values['output']);
+        if ($output = $this->get('output')) {
+            $containsBaseDir = starts_with($baseDirectory, $output);
+            $output = $containsBaseDir ? $output : $this->join($baseDirectory, $output);
         } else {
             $output = $baseDirectory;
         }
