@@ -8,6 +8,7 @@ trait GeneratesConfig
 {
     protected $configLocation = __DIR__ . '/../../.refresh-database.yml';
 
+
     /**
      * @before
      */
@@ -15,10 +16,7 @@ trait GeneratesConfig
     {
         $handle = fopen($this->configLocation, 'w');
 
-        fwrite($handle, "migrations:
-  - tests/migrations
-
-output: tests");
+        fwrite($handle, $this->getConfig());
 
         fclose($handle);
 
@@ -33,5 +31,13 @@ output: tests");
         if (file_exists($this->configLocation)) {
             unlink($this->configLocation);
         }
+    }
+
+    protected function getConfig()
+    {
+        return "migrations:
+  - tests/migrations
+
+output: tests";
     }
 }

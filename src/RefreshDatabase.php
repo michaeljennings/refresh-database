@@ -18,11 +18,27 @@ trait RefreshDatabase
     public function refreshDatabase()
     {
         if (Config::shouldDumpDatabase()) {
-            $this->app->make('db')->unprepared(
-                file_get_contents(Config::getOutputDirectory() . DIRECTORY_SEPARATOR . 'export.sql')
-            );
+            if (Config::has('connections')) {
+                foreach (Config::get('connections') as $connection => $config) {
+                    $this->executeDump(Config::getOutputDirectory($connection, 'export.sql'), $connection);
+                }
+            } else {
+                $this->executeDump(Config::getOutputDirectory('export.sql'));
+            }
         } else {
             $this->parentRefreshDatabase();
         }
+    }
+
+    /**
+     * Execute the stored database dump, if a connection is passed then
+     * run the dump in that connection.
+     *
+     * @param string      $path
+     * @param string|null $connection
+     */
+    protected function executeDump(string $path, string $connection = null)
+    {
+        $this->app->make('db')->connection($connection)->unprepared(file_get_contents($path));
     }
 }
