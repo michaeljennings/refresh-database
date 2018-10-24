@@ -122,7 +122,7 @@ class DatabaseMigratorTest extends TestCase
         $contents = file_get_contents(__DIR__ . '/.database/migrations');
 
         // Create a new migration
-        $migration = __DIR__ . '/migrations/2018_01_01_002000_create_test_data_table.php';
+        $migration = __DIR__ . '/migrations/2018_01_01_002000_create_test_products_table.php';
 
         $this->makeMigration($migration);
 
@@ -141,6 +141,11 @@ class DatabaseMigratorTest extends TestCase
         $this->deleteFile($migration);
     }
 
+    /**
+     * Make a migration so we can test the migration cache busting
+     *
+     * @param string $migration
+     */
     protected function makeMigration(string $migration)
     {
         $contents = file_get_contents(__DIR__ . '/migrations/2018_01_01_000000_create_test_data_table.php');

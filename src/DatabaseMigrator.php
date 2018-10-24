@@ -5,6 +5,7 @@ namespace MichaelJennings\RefreshDatabase;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Contracts\Foundation\Application;
 use Orchestra\Testbench\Concerns\CreatesApplication;
+use Symfony\Component\Process\Process;
 
 class DatabaseMigrator
 {
@@ -200,7 +201,7 @@ class DatabaseMigrator
     {
         $dump = $this->join($output, 'export.sql');
 
-        shell_exec("sqlite3 $this->databasePath .dump > $dump");
+        (new Process("sqlite3 $this->databasePath .dump > $dump"))->run();
     }
 
     /**
