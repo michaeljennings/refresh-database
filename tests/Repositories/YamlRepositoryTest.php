@@ -23,6 +23,34 @@ class YamlRepositoryTest extends TestCase
     /**
      * @test
      */
+    public function it_checks_if_a_config_value_is_set()
+    {
+        $this->assertTrue($this->repository->has('migrations'));
+        $this->assertFalse($this->repository->has('not_set'));
+    }
+
+    /**
+     * @test
+     */
+    public function it_gets_a_value_from_the_config()
+    {
+        $output = $this->repository->get('output');
+
+        $this->assertEquals('tests', $output);
+    }
+
+    /**
+     * @test
+     */
+    public function it_uses_the_default_if_a_value_is_not_set()
+    {
+        $this->assertNull($this->repository->get('not_set'));
+        $this->assertEquals('TEST', $this->repository->get('not_set', 'TEST'));
+    }
+
+    /**
+     * @test
+     */
     public function it_gets_the_config_values()
     {
         $values = $this->repository->values();
@@ -54,6 +82,14 @@ class YamlRepositoryTest extends TestCase
     public function it_gets_the_output_directory()
     {
         $this->assertEquals(realpath(__DIR__ . '/../../tests/.database'), $this->repository->getOutputDirectory());
+    }
+
+    /**
+     * @test
+     */
+    public function it_appends_to_the_output_directory()
+    {
+        $this->assertEquals(realpath(__DIR__ . '/../../tests/.database/export.sql'), $this->repository->getOutputDirectory('export.sql'));
     }
 
     /**
