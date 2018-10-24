@@ -34,30 +34,62 @@ class DatabaseMigrator
      */
     public function migrate()
     {
-        $config = $this->config->values();
-        $baseDir = $this->config->getBaseDirectory();
-
-        $migrations = array_key_exists('migrations', $config) ? $config['migrations'] : [];
-        $databaseName = array_key_exists('database_name', $config) ? $config['database_name'] : 'testing.sqlite';
-        $cacheMigrations = array_key_exists('cache_migrations', $config) ? $config['cache_migrations'] : true;
+        $cacheMigrations = $this->config->get('cache_migrations', true);
         $output = $this->config->getOutputDirectory();
 
-        if ( ! file_exists($output)) {
-            mkdir($output);
+        $this->makeDirectory($output);
+
+        if ($this->config->has('connections')) {
+            foreach ($this->config->get('connections') as $name => $details) {
+                $migrations = $this->config->get("connections.$name.migrations", []);
+                $databaseName = $this->config->get("connections.$name.database_name", 'testing.sqlite');
+
+                $this->migrateConnection($migrations, $databaseName, $cacheMigrations, $output, $name);
+            }
+        } else {
+            $migrations = $this->config->get('migrations', []);
+            $databaseName = $this->config->get('database_name', 'testing.sqlite');
+
+            $this->migrateConnection($migrations, $databaseName, $cacheMigrations, $output);
+        }
+    }
+
+    /**
+     * Run the migrations for a database connection.
+     *
+     * @param array       $paths
+     * @param string      $databaseName
+     * @param bool        $cacheMigrations
+     * @param string      $output
+     * @param string|null $connection
+     */
+    protected function migrateConnection(
+        array $paths,
+        string $databaseName,
+        bool $cacheMigrations,
+        string $output,
+        string $connection = null
+    ) {
+        $baseDir = $this->config->getBaseDirectory();
+
+        if ($connection) {
+            $output = $this->join($output, $connection);
+
+            $this->makeDirectory($output);
         }
 
-        $this->runMigrations($migrations, $baseDir, $output, $databaseName, $cacheMigrations);
+        $this->runMigrations($paths, $baseDir, $output, $databaseName, $cacheMigrations);
         $this->dumpDatabase($output);
     }
 
     /**
      * Run the migrations into the sqlite file.
      *
-     * @param array  $paths
+     * @param array $paths
      * @param string $baseDir
      * @param string $output
      * @param string $databaseName
-     * @param bool   $cacheMigrations
+     * @param bool $cacheMigrations
      */
     protected function runMigrations(
         array $paths,
@@ -76,10 +108,10 @@ class DatabaseMigrator
             if ($cacheMigrations) {
                 $migrations = $this->migrationContents($app, $paths);
 
-                $this->cacheMigrations($migrations);
+                $this->cacheMigrations($migrations, $output);
             }
         } else {
-            if ($cacheMigrations && ! $this->shouldRunMigrations($app, $paths)) {
+            if ($cacheMigrations && ! $this->shouldRunMigrations($app, $paths, $output)) {
                 return;
             }
 
@@ -100,11 +132,12 @@ class DatabaseMigrator
      *
      * @param Application $app
      * @param array       $paths
+     * @param string      $output
      * @return bool
      */
-    protected function shouldRunMigrations(Application $app, array $paths)
+    protected function shouldRunMigrations(Application $app, array $paths, string $output)
     {
-        $cachePath = $this->getCachePath();
+        $cachePath = $this->getCachePath($output);
         $migrations = $this->migrationContents($app, $paths);
 
         if (file_exists($cachePath)) {
@@ -117,7 +150,7 @@ class DatabaseMigrator
             unlink($cachePath);
         }
 
-        $this->cacheMigrations($migrations);
+        $this->cacheMigrations($migrations, $output);
 
         return true;
     }
@@ -126,10 +159,11 @@ class DatabaseMigrator
      * Cache the migrations to a file.
      *
      * @param string $migrations
+     * @param string $output
      */
-    protected function cacheMigrations(string $migrations)
+    protected function cacheMigrations(string $migrations, string $output)
     {
-        $cachePath = $this->getCachePath();
+        $cachePath = $this->getCachePath($output);
 
         $handle = fopen($cachePath, 'w');
 
@@ -191,11 +225,24 @@ class DatabaseMigrator
     /**
      * Get the path to cache the migrations in.
      *
+     * @param string $output
      * @return string
      */
-    protected function getCachePath()
+    protected function getCachePath(string $output)
     {
-        return $this->join($this->config->getOutputDirectory(), 'migrations');
+        return $this->join($output, 'migrations');
+    }
+
+    /**
+     * Make a directory if it does not exist.
+     *
+     * @param string $directory
+     */
+    protected function makeDirectory(string $directory)
+    {
+        if ( ! file_exists($directory)) {
+            mkdir($directory);
+        }
     }
 
     /**

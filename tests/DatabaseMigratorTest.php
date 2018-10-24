@@ -37,6 +37,41 @@ class DatabaseMigratorTest extends TestCase
     /**
      * @test
      */
+    public function it_dumps_the_structure_for_multiple_connections()
+    {
+        $migrator = new DatabaseMigrator(
+            new Config(
+                new Yaml([
+                    'connections' => [
+                        'testing' => [
+                            'migrations' => [
+                                __DIR__ . '/migrations',
+                            ],
+                        ],
+                        'local' => [
+                            'migrations' => [
+                                __DIR__ . '/migrations',
+                            ],
+                        ],
+                    ],
+                    'output' => 'tests',
+                ], __DIR__ . '/..')
+            )
+        );
+
+        $migrator->migrate();
+
+        $this->assertTrue(file_exists(__DIR__ . '/.database/testing/testing.sqlite'));
+        $this->assertTrue(file_exists(__DIR__ . '/.database/testing/migrations'));
+        $this->assertTrue(file_exists(__DIR__ . '/.database/testing/export.sql'));
+        $this->assertTrue(file_exists(__DIR__ . '/.database/local/testing.sqlite'));
+        $this->assertTrue(file_exists(__DIR__ . '/.database/local/migrations'));
+        $this->assertTrue(file_exists(__DIR__ . '/.database/local/export.sql'));
+    }
+
+    /**
+     * @test
+     */
     public function it_does_not_cache_the_migrations()
     {
         $migrator = new DatabaseMigrator(
