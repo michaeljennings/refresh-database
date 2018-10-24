@@ -7,12 +7,15 @@ trait JoinDirectories
     /**
      * Join the filename and directory.
      *
-     * @param string $directory
-     * @param string $filename
+     * @param $parts
      * @return string
      */
-    protected function join(string $directory, string $filename)
+    protected function join($parts)
     {
-        return $directory . DIRECTORY_SEPARATOR . $filename;
+        if ( ! is_array($parts)) {
+            $parts = func_get_args();
+        }
+
+        return implode(DIRECTORY_SEPARATOR, $parts);
     }
 }
