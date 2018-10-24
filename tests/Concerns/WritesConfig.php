@@ -4,6 +4,8 @@ namespace MichaelJennings\RefreshDatabase\Tests\Concerns;
 
 trait WritesConfig
 {
+    use WritesFiles;
+
     /**
      * The location to store the config file.
      *
@@ -16,11 +18,7 @@ trait WritesConfig
      */
     protected function writeConfig()
     {
-        $handle = fopen($this->configLocation, 'w');
-
-        fwrite($handle, $this->getConfig());
-
-        fclose($handle);
+        $this->writeFile($this->configLocation, $this->getConfig());
     }
 
     /**
@@ -43,8 +41,6 @@ output: tests";
      */
     public function removeConfig()
     {
-        if (file_exists($this->configLocation)) {
-            unlink($this->configLocation);
-        }
+        $this->deleteFile($this->configLocation);
     }
 }
