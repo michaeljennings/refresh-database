@@ -30,11 +30,34 @@ class Yaml
     }
 
     /**
+     * Check if a config value is set.
+     *
+     * @param string $key
+     * @return bool
+     */
+    public function has(string $key): bool
+    {
+        return array_has($this->values, $key);
+    }
+
+    /**
+     * Get a config value by its key.
+     *
+     * @param string $key
+     * @param null   $default
+     * @return mixed
+     */
+    public function get(string $key, $default = null)
+    {
+        return array_get($this->values, $key, $default);
+    }
+
+    /**
      * Get the config values.
      *
      * @return array
      */
-    public function values()
+    public function values(): array
     {
         return $this->values;
     }
@@ -44,7 +67,7 @@ class Yaml
      *
      * @return string
      */
-    public function getPath()
+    public function getPath(): string
     {
         $root = null;
         $currentDirectory = __DIR__;
@@ -66,7 +89,7 @@ class Yaml
      *
      * @return string
      */
-    public function getBaseDirectory()
+    public function getBaseDirectory(): string
     {
         if ( ! $this->baseDirectory) {
             $this->baseDirectory = dirname($this->getPath());
@@ -78,10 +101,15 @@ class Yaml
     /**
      * Get the output directory to store the database dump in.
      *
+     * @param mixed $parts
      * @return string
      */
-    public function getOutputDirectory()
+    public function getOutputDirectory($parts = null): string
     {
+        if ( ! is_array($parts)) {
+            $parts = func_get_args();
+        }
+
         $baseDirectory = $this->getBaseDirectory();
 
         if (isset($this->values['output'])) {
@@ -91,7 +119,7 @@ class Yaml
             $output = $baseDirectory;
         }
 
-        return $this->join($output, '.database');
+        return $this->join($output, '.database', ...$parts);
     }
 
     /**
@@ -99,7 +127,7 @@ class Yaml
      *
      * @return bool
      */
-    public function shouldDumpDatabase()
+    public function shouldDumpDatabase(): bool
     {
         return is_null(env('DUMP_DATABASE')) ?: (boolean)env('DUMP_DATABASE');
     }
