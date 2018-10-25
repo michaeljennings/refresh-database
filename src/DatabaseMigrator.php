@@ -247,10 +247,7 @@ class DatabaseMigrator
     }
 
     /**
-     * Define environment setup.
-     *
-     * @param \Illuminate\Foundation\Application $app
-     * @return void
+     * @inheritdoc
      */
     protected function getEnvironmentSetUp($app)
     {
@@ -260,5 +257,13 @@ class DatabaseMigrator
             'database' => $this->databasePath,
             'prefix' => '',
         ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function resolveApplicationExceptionHandler($app)
+    {
+        $app->singleton('Illuminate\Contracts\Debug\ExceptionHandler', ExceptionHandler::class);
     }
 }
