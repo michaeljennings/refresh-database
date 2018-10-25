@@ -262,6 +262,14 @@ class DatabaseMigrator
     /**
      * @inheritdoc
      */
+    public function getPackageProviders($app)
+    {
+        return $this->config->get('providers', []);
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function resolveApplicationExceptionHandler($app)
     {
         $app->singleton('Illuminate\Contracts\Debug\ExceptionHandler', ExceptionHandler::class);

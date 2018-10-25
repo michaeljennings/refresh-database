@@ -9,6 +9,7 @@ At the minute this package only works with phpunit and sqlite.
 - [Installation](#installation)
 - [Usage](#usage)
     - [Multiple Connections](#multiple-connections)
+    - [Service Providers](#service-providers)
 - [Environments](#environments)
 - [Migration Cache](#migration-cache)
 
@@ -124,6 +125,25 @@ return [
   ]
   ...
 ]
+```
+
+### Service Providers
+
+In your application you may have migrations that rely on a service provider being registered, because this package creates it's own application instance you will need to tell it which service providers to register.
+
+To register your service providers you set the providers property in your `.refresh-database.yml` file.
+
+Below is an example config file where we are loading a utility service provider.
+
+```yml
+migrations:
+  - database/migrations
+  - vendor/other/package/database/migrations
+
+providers:
+  - Database\UtilityServiceProvider
+
+output: tests
 ```
 
 ## Environments

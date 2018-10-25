@@ -2,11 +2,13 @@
 
 namespace MichaelJennings\RefreshDatabase\Tests;
 
+use Illuminate\Support\Facades\Schema;
 use MichaelJennings\RefreshDatabase\Config;
 use MichaelJennings\RefreshDatabase\DatabaseMigrator;
 use MichaelJennings\RefreshDatabase\Repositories\Yaml;
 use MichaelJennings\RefreshDatabase\Tests\Concerns\CleanUpDatabase;
 use MichaelJennings\RefreshDatabase\Tests\Concerns\WritesFiles;
+use MichaelJennings\RefreshDatabase\Tests\Fixtures\TestServiceProvider;
 
 class DatabaseMigratorTest extends TestCase
 {
@@ -92,6 +94,34 @@ class DatabaseMigratorTest extends TestCase
         $this->assertTrue(file_exists(__DIR__ . '/.database/testing.sqlite'));
         $this->assertFalse(file_exists(__DIR__ . '/.database/migrations'));
         $this->assertTrue(file_exists(__DIR__ . '/.database/export.sql'));
+    }
+
+    /**
+     * @test
+     */
+    public function it_registers_a_service_provider_before_migrating()
+    {
+        $migrator = new DatabaseMigrator(
+            new Config(
+                new Yaml([
+                    'migrations' => [
+                        'tests/migrations/macro',
+                    ],
+                    'output' => 'tests',
+                    'providers' => [
+                        TestServiceProvider::class,
+                    ]
+                ], __DIR__ . '/..')
+            )
+        );
+
+        $migrator->migrate();
+
+        $this->assertTrue(file_exists(__DIR__ . '/.database/testing.sqlite'));
+        $this->assertTrue(file_exists(__DIR__ . '/.database/migrations'));
+        $this->assertTrue(file_exists(__DIR__ . '/.database/export.sql'));
+        // Check the macro ran successfully
+        $this->assertTrue(Schema::hasColumn('test_departments', 'active'));
     }
 
     /**
