@@ -26,7 +26,7 @@ Or add `michaeljennings/refresh-database` to the require-dev section of your `co
 ```json
 ...
 "require-dev": {
-  "michaeljennings/refresh-database": "^1.2"
+  "michaeljennings/refresh-database": "^1.3"
 },
 ...
 ```
