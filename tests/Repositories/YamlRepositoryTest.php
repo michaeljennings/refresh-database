@@ -64,7 +64,7 @@ class YamlRepositoryTest extends TestCase
     {
         $values = $this->repository->values();
 
-        $this->assertInternalType('array', $values);
+        $this->assertIsArray($values);
         $this->assertArrayHasKey('migrations', $values);
         $this->assertArrayHasKey('output', $values);
     }

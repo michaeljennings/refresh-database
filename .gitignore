@@ -1,5 +1,6 @@
-/vendor/
 /.idea/
-composer.lock
-.refresh-database.yml
+/vendor/
 /tests/.database
+composer.lock
+.phpunit.result.cache
+.refresh-database.yml

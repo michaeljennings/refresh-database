@@ -29,7 +29,7 @@ class ExceptionHandlerTest extends TestCase
     /**
      * @inheritdoc
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
 
