@@ -4,6 +4,7 @@ namespace MichaelJennings\RefreshDatabase;
 
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Database\Migrations\Migrator;
 use Orchestra\Testbench\Concerns\CreatesApplication;
 use Symfony\Component\Process\Process;
 
@@ -119,13 +120,22 @@ class DatabaseMigrator
             $this->refreshDatabase($this->databasePath);
         }
 
-        foreach ($paths as $path) {
-            $app[Kernel::class]->call('migrate', [
-                '--database' => 'sqlite',
-                '--path' => $this->join($baseDir, $path),
-                '--realpath' => true,
-            ]);
+        /** @var Migrator $migrator */
+        $migrator = $app->make('migrator');
+
+        $migrator->setConnection('sqlite');
+
+        if ( ! $migrator->repositoryExists()) {
+            $repository = $migrator->getRepository();
+
+            $repository->createRepository();
         }
+
+        $paths = array_map(function($path) use ($baseDir) {
+            return realpath($this->join($baseDir, $path));
+        }, $paths);
+
+        $migrator->run($paths);
     }
 
     /**
