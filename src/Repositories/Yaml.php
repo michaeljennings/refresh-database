@@ -3,6 +3,7 @@
 namespace MichaelJennings\RefreshDatabase\Repositories;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use MichaelJennings\RefreshDatabase\Contracts\Config;
 use MichaelJennings\RefreshDatabase\JoinDirectories;
 use Symfony\Component\Yaml\Yaml as SymfonyYaml;
@@ -129,7 +130,7 @@ class Yaml implements Config
         $baseDirectory = $this->getBaseDirectory();
 
         if ($output = $this->get('output')) {
-            $containsBaseDir = starts_with($baseDirectory, $output);
+            $containsBaseDir = Str::startsWith($baseDirectory, $output);
             $output = $containsBaseDir ? $output : $this->join($baseDirectory, $output);
         } else {
             $output = $baseDirectory;
