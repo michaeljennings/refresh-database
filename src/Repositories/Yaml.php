@@ -2,6 +2,7 @@
 
 namespace MichaelJennings\RefreshDatabase\Repositories;
 
+use Illuminate\Support\Arr;
 use MichaelJennings\RefreshDatabase\Contracts\Config;
 use MichaelJennings\RefreshDatabase\JoinDirectories;
 use Symfony\Component\Yaml\Yaml as SymfonyYaml;
@@ -50,7 +51,7 @@ class Yaml implements Config
      */
     public function get(string $key, $default = null)
     {
-        return array_get($this->values, $key, $default);
+        return Arr::get($this->values, $key, $default);
     }
 
     /**
