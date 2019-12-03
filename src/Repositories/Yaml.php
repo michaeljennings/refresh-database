@@ -40,7 +40,7 @@ class Yaml implements Config
      */
     public function has(string $key): bool
     {
-        return array_has($this->values, $key);
+        return Arr::has($this->values, $key);
     }
 
     /**
