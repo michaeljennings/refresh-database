@@ -6,12 +6,21 @@ This package speeds up your tests by running the migrations once into an sqlite 
 
 At the minute this package only works with phpunit and sqlite.
 
+- [Version Compatibility](#version-compatibility)
 - [Installation](#installation)
 - [Usage](#usage)
     - [Multiple Connections](#multiple-connections)
     - [Service Providers](#service-providers)
 - [Environments](#environments)
 - [Migration Cache](#migration-cache)
+
+## Version Compatibility
+|Laravel|Refresh Database|
+|---|---|
+|5.x|1.x|
+|6.x|1.x|
+|7.x|2.x|
+
 
 ## Installation
 
