@@ -2,9 +2,9 @@
 
 namespace MichaelJennings\RefreshDatabase;
 
-use Exception;
 use Orchestra\Testbench\Exceptions\Handler;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 
 class ExceptionHandler extends Handler
 {
@@ -12,10 +12,10 @@ class ExceptionHandler extends Handler
      * Render an exception to the console.
      *
      * @param  OutputInterface  $output
-     * @param  \Exception  $e
+     * @param  Throwable  $e
      * @return void
      */
-    public function renderForConsole($output, Exception $e)
+    public function renderForConsole($output, Throwable $e)
     {
         // When running the artisan command we cannot set the verbosity, which
         // means the user cannot see the stack trace when an error occurs. To

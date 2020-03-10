@@ -211,7 +211,7 @@ class DatabaseMigrator
     {
         $dump = $this->join($output, 'export.sql');
 
-        (new Process("sqlite3 $this->databasePath .dump > $dump"))->run();
+        shell_exec("sqlite3 $this->databasePath .dump > $dump");
     }
 
     /**
