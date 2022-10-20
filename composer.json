@@ -10,9 +10,9 @@
     }
   ],
   "require": {
-    "php": ">=7.2",
+    "php": "^7.2 || ^8.0",
     "illuminate/support": ">=7.0",
-    "orchestra/testbench": ">=5.0",
+    "orchestra/testbench": "^7.0.0",
     "symfony/yaml": ">=5.0",
     "symfony/process": ">=5.0"
   },
